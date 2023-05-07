@@ -3,6 +3,34 @@ public:
     vector<vector<int>> permuteUnique(vector<int>& nums) {
         vector<vector<int>> result;
         vector<int> curr;
+        sort(nums.begin(), nums.end());
+        permuteUniqueHelper(nums, 0, result);
+        return result;
+    }
+
+    void permuteUniqueHelper(vector<int>& nums, int begin_index, vector<vector<int>>& result)
+    {
+        unordered_set<int> used;
+        if(begin_index == nums.size()){
+            result.push_back(nums);
+        }else{
+            for(int l = begin_index; l < nums.size(); ++l){
+                if(used.end() != used.find(nums[l])) continue;
+                used.insert(nums[l]);
+                swap(nums[l], nums[begin_index]);
+                permuteUniqueHelper(nums, begin_index + 1, result);
+                swap(nums[l], nums[begin_index]);
+            }
+        }
+    }
+};
+
+
+class Solution2 {
+public:
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        vector<vector<int>> result;
+        vector<int> curr;
         vector<bool> used(nums.size(), false);
         sort(nums.begin(), nums.end());
         permuteUniqueHelper(nums, used, result, curr);
