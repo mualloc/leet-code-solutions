@@ -10,6 +10,7 @@ public:
         const size_t subset_count = 1 << nums.size();
         vector<unsigned long> dp(subset_count, -1);
         dp[0] = 0;
+        sort(nums.begin(), nums.end());
         for(size_t i = 0; i < subset_count; ++i){
             if(-1 == dp[i]) continue; 
             for(size_t j = 0; j < nums.size(); ++j){
@@ -18,6 +19,7 @@ public:
                     long new_sum = dp[i] + nums[j];
                     const size_t new_subset_index = i | (1 << j);
                     if(new_sum <= target) dp[new_subset_index] = new_sum == target ? 0 : new_sum;
+                    else break;
                 }
             }
         }
@@ -26,6 +28,33 @@ public:
 };
 
 class Solution2 {
+public:
+    // TC: O(k*2^n)
+    bool canPartitionKSubsets(vector<int>& nums, int k) {
+        const long sum_of_elements = accumulate(nums.begin(), nums.end(), 0);
+        if(sum_of_elements % k) return false;
+        const long target= sum_of_elements / k;
+        vector<unsigned long> subset_sums(k, 0);
+        //sort(nums.begin(), nums.end());
+        return canPartitionKSubsetsHelper(nums, k, 0, target, subset_sums);
+    }
+private:
+    bool canPartitionKSubsetsHelper(vector<int>& nums, int k, int index, const long target_sum, vector<unsigned long>& subset_sums) {
+        if(nums.size() == index) 
+            return std::all_of(subset_sums.cbegin(), subset_sums.cend(), [target_sum](int subset_sum){ return target_sum == subset_sum; });
+        
+        for(int i = 0; i < k; ++i){
+            if(subset_sums[i] + nums[index] <= target_sum) {
+                subset_sums[i] += nums[index];
+                if(canPartitionKSubsetsHelper(nums, k, index + 1, target_sum, subset_sums)) return true;
+                else subset_sums[i] -= nums[index];
+            }//else break;
+        }
+        return false;
+    }
+};
+
+class Solution3 {
 public:
     // TC: O(n^k)
     bool canPartitionKSubsets(vector<int>& nums, int k) {
